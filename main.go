@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func scanFolderHelpler(path string, level int) []string {
+func scanFolderHelpler(path string, folder *[]string) {
 	path = strings.TrimSuffix(path, "/")
 
 	// get the file struct
@@ -25,34 +25,41 @@ func scanFolderHelpler(path string, level int) []string {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("found:")
+
+	var nextPath []string
 
 	for _, file := range files {
-		name := "dir"
-		if !file.IsDir() {
-			name = "file"
+		if file.IsDir() {
+			if strings.EqualFold(file.Name(), ".git") {
+				fmt.Println("[scan] found .git:", path)
+				*folder = append(*folder, path)
+				return
+			}
+			nextPath = append(nextPath, path+"/"+file.Name())
 		}
-		fmt.Printf("%10s: %s\n", name, file.Name())
 	}
 
-	return make([]string, 0)
+	for _, next := range nextPath {
+		scanFolderHelpler(next, folder)
+	}
 }
 
-func scanFolder(path string) []string {
-	return scanFolderHelpler(path, 0)
+func scanFolder(path string, folder *[]string) {
+	scanFolderHelpler(path, folder)
 }
 
 func scan(path string) {
 	// TODO: recursive scan for .git folders
-	gitFolders := scanFolder(path)
+	var gitFolders []string
+	scanFolder(path, &gitFolders)
 
 	// TODO: Write path to the .visual-git file
 	// writeInSetting(gitFolders)
 
 	// Print the results
-	fmt.Println("Found: ")
+	fmt.Println("[Result] Found:", len(gitFolders))
 	for _, path := range gitFolders {
-		fmt.Println(path)
+		fmt.Println("  ", path)
 	}
 }
 
