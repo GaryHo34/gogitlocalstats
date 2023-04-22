@@ -1,8 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"log"
 	"os"
 	"strings"
@@ -48,13 +51,66 @@ func scanFolder(path string, folder *[]string) {
 	scanFolderHelpler(path, folder)
 }
 
+func getDotFilePath() string {
+
+	dotFile := ".visual-git"
+	return dotFile
+}
+
+func openReadSettingFile(filePath string) []string {
+	fmt.Println(filePath)
+	_, err := os.Open(filePath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			// file does not exist
+			_, err = os.Create(filePath)
+			if err != nil {
+				panic(err)
+			}
+		} else {
+			// other error
+			panic(err)
+		}
+	}
+	f, err := os.Open(filePath)
+	defer f.Close()
+
+	var lines []string
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+	if err := scanner.Err(); err != nil {
+		if err != io.EOF {
+			panic(err)
+		}
+	}
+	return lines
+}
+func writeInSetting(existing []string, newPath []string) {
+	for _, line := range newPath {
+		flag := false
+		for _, oldLine := range existing {
+			flag = flag || (line == oldLine)
+		}
+		if flag {
+			continue
+		}
+		existing = append(existing, line)
+	}
+
+	content := strings.Join(existing, "\n")
+	filePath := getDotFilePath()
+	ioutil.WriteFile(filePath, []byte(content), 0755)
+}
 func scan(path string) {
 	// TODO: recursive scan for .git folders
 	var gitFolders []string
 	scanFolder(path, &gitFolders)
-
+	filePath := getDotFilePath()
+	existing := openReadSettingFile(filePath)
 	// TODO: Write path to the .visual-git file
-	// writeInSetting(gitFolders)
+	writeInSetting(existing, gitFolders)
 
 	// Print the results
 	fmt.Println("[Result] Found:", len(gitFolders))
