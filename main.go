@@ -9,6 +9,9 @@ import (
 	"log"
 	"os"
 	"strings"
+
+	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing/object"
 )
 
 func scanFolderHelpler(path string, folder *[]string) {
@@ -106,6 +109,42 @@ func writeInSetting(newPath []string) {
 	ioutil.WriteFile(filePath, []byte(content), 0755)
 }
 
+func printCommitDetail() {
+	filePath := getDotFilePath()
+	existing := openReadSettingFile(filePath)
+
+	for _, path := range existing {
+		repo, err := git.PlainOpen(path)
+		des := strings.Split(path, "/")
+		fmt.Println("LOG: ", des[len(des)-1])
+		if err != nil {
+			panic(err)
+		}
+
+		ref, err := repo.Head()
+		if err != nil {
+			panic(err)
+		}
+
+		iterator, err := repo.Log(&git.LogOptions{From: ref.Hash()})
+		if err != nil {
+			panic(err)
+		}
+		err = iterator.ForEach(func(c *object.Commit) error {
+			fmt.Println(c.Author.When)
+			fmt.Println(c.Author.Email)
+			fmt.Println(c.Author.Name)
+			fmt.Println()
+
+			return nil
+		})
+
+		if err != nil {
+			panic(err)
+		}
+	}
+}
+
 func scan(path string) {
 	// TODO: recursive scan for .git folders
 	var gitFolders []string
@@ -134,5 +173,6 @@ func main() {
 	if folder != "" {
 		scan(folder)
 	}
+	printCommitDetail()
 	stat(email)
 }
