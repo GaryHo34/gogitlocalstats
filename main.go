@@ -87,7 +87,10 @@ func openReadSettingFile(filePath string) []string {
 	}
 	return lines
 }
-func writeInSetting(existing []string, newPath []string) {
+func writeInSetting(newPath []string) {
+	filePath := getDotFilePath()
+	existing := openReadSettingFile(filePath)
+
 	for _, line := range newPath {
 		flag := false
 		for _, oldLine := range existing {
@@ -100,17 +103,15 @@ func writeInSetting(existing []string, newPath []string) {
 	}
 
 	content := strings.Join(existing, "\n")
-	filePath := getDotFilePath()
 	ioutil.WriteFile(filePath, []byte(content), 0755)
 }
+
 func scan(path string) {
 	// TODO: recursive scan for .git folders
 	var gitFolders []string
 	scanFolder(path, &gitFolders)
-	filePath := getDotFilePath()
-	existing := openReadSettingFile(filePath)
 	// TODO: Write path to the .visual-git file
-	writeInSetting(existing, gitFolders)
+	writeInSetting(gitFolders)
 
 	// Print the results
 	fmt.Println("[Result] Found:", len(gitFolders))
