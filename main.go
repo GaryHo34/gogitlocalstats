@@ -5,10 +5,10 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
@@ -76,6 +76,11 @@ func openReadSettingFile(filePath string) []string {
 		}
 	}
 	f, err := os.Open(filePath)
+
+	if err != nil {
+		panic(err)
+	}
+
 	defer f.Close()
 
 	var lines []string
@@ -106,13 +111,13 @@ func writeInSetting(newPath []string) {
 	}
 
 	content := strings.Join(existing, "\n")
-	ioutil.WriteFile(filePath, []byte(content), 0755)
+	os.WriteFile(filePath, []byte(content), 0755)
 }
 
 func printCommitDetail() {
 	filePath := getDotFilePath()
 	existing := openReadSettingFile(filePath)
-
+	timeMap := generateTimeMap()
 	for _, path := range existing {
 		repo, err := git.PlainOpen(path)
 		des := strings.Split(path, "/")
@@ -130,11 +135,11 @@ func printCommitDetail() {
 		if err != nil {
 			panic(err)
 		}
+
 		err = iterator.ForEach(func(c *object.Commit) error {
-			fmt.Println(c.Author.When)
-			fmt.Println(c.Author.Email)
-			fmt.Println(c.Author.Name)
-			fmt.Println()
+			if c.Author.Email == "garyho0916@gmail.com" {
+				timeMap[c.Author.When.Format("2006-01-02")] += 1
+			}
 
 			return nil
 		})
@@ -143,6 +148,34 @@ func printCommitDetail() {
 			panic(err)
 		}
 	}
+
+	today := time.Now()
+	totalday := 26*7 + int(today.Weekday())
+	commitMap := make([]string, 7)
+	for i := 0; i < 7; i++ {
+	}
+	for i := totalday; i >= 0; i-- {
+		date := today.AddDate(0, 0, -i)
+		day := date.Weekday()
+		commitMap[int(day)] += fmt.Sprint(timeMap[date.Format("2006-01-02")]) + "\t"
+	}
+	for i := 0; i < 7; i++ {
+		fmt.Println(commitMap[i])
+	}
+}
+
+// count back for 25 weeks
+func generateTimeMap() map[string]int {
+	timeMap := make(map[string]int)
+	today := time.Now()
+	day := today.Weekday()
+
+	totalday := 26*7 + int(day)
+	for i := 0; i < totalday; i++ {
+		date := today.AddDate(0, 0, -i)
+		timeMap[date.Format("2006-01-02")] = 0
+	}
+	return timeMap
 }
 
 func scan(path string) {
@@ -151,7 +184,6 @@ func scan(path string) {
 	scanFolder(path, &gitFolders)
 	// TODO: Write path to the .visual-git file
 	writeInSetting(gitFolders)
-
 	// Print the results
 	fmt.Println("[Result] Found:", len(gitFolders))
 	for _, path := range gitFolders {
