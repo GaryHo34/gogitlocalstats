@@ -8,10 +8,10 @@ $ ./main -add <path-to-search-git-repo>
 ```
 
 ## Environment
-- [Go 1.20]
+- [Go 1.20](https://golang.org/dl/)
 
 ## Dependencies
-- [go-git]
+- [github.com/go-git/go-git/v5](https://pkg.go.dev/github.com/go-git/go-git/v5)
 
 ## License
 MIT
