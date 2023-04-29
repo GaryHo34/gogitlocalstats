@@ -13,7 +13,7 @@ import (
 
 var DOT_FILE_PATH = ".visual-git"
 
-func read_setting_file() []string {
+func readSettingFile() []string {
 
 	file, err := os.OpenFile(DOT_FILE_PATH, os.O_CREATE|os.O_RDONLY, 0755)
 
@@ -39,7 +39,7 @@ func read_setting_file() []string {
 	return dotGitPaths
 }
 
-func write_setting_file(newGitPaths []string) {
+func writeSettingFile(newGitPaths []string) {
 	file, err := os.OpenFile(DOT_FILE_PATH, os.O_CREATE|os.O_APPEND|os.O_RDWR, 0755)
 
 	if err != nil {
@@ -53,7 +53,7 @@ func write_setting_file(newGitPaths []string) {
 	// path set
 	set := make(map[string]bool, 0)
 
-	for _, path := range read_setting_file() {
+	for _, path := range readSettingFile() {
 		set[path] = true
 	}
 
@@ -71,7 +71,7 @@ func write_setting_file(newGitPaths []string) {
 	file.Write([]byte(content))
 }
 
-func scan_new_git_path(rootPath string) []string {
+func scanNewGitPath(rootPath string) []string {
 
 	var newGitPaths []string
 

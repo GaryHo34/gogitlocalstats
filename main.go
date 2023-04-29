@@ -15,18 +15,18 @@ func main() {
 	flag.Parse()
 
 	if folder != "" {
-		newGitPaths := scan_new_git_path(folder)
+		newGitPaths := scanNewGitPath(folder)
 
 		// Print the results
 		for _, path := range newGitPaths {
 			fmt.Println("  ", path)
 		}
 
-		write_setting_file(newGitPaths)
+		writeSettingFile(newGitPaths)
 	}
 
 	if email != "" {
-		commitTimeMap := load_get_commit(email)
-		print_commit_detail(commitTimeMap)
+		commitTimeMap := loadGitCommit(email)
+		printCommitDetail(commitTimeMap)
 	}
 }

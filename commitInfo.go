@@ -10,7 +10,7 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/object"
 )
 
-func print_commit_detail(timeMap map[string]int) {
+func printCommitDetail(timeMap map[string]int) {
 	today := time.Now()
 
 	totalday := 26*7 + int(today.Weekday())
@@ -41,10 +41,10 @@ func print_commit_detail(timeMap map[string]int) {
 	}
 }
 
-func load_get_commit(email string) map[string]int {
-	gitPaths := read_setting_file()
+func loadGitCommit(email string) map[string]int {
+	gitPaths := readSettingFile()
 
-	timeMap := generate_timeMap()
+	timeMap := generateTimeMap()
 
 	for _, path := range gitPaths {
 		repo, err := git.PlainOpen(path)
@@ -83,7 +83,7 @@ func load_get_commit(email string) map[string]int {
 	return timeMap
 }
 
-func generate_timeMap() map[string]int {
+func generateTimeMap() map[string]int {
 	timeMap := make(map[string]int)
 
 	today := time.Now()
