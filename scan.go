@@ -60,11 +60,14 @@ func write_setting_file(newGitPaths []string) {
 	for _, path := range newGitPaths {
 		_, ok := set[path]
 		if !ok {
-			writeInPaths = append(writeInPaths, path)
+			writeInPaths = append(writeInPaths, path+"\n")
 		}
 	}
 
-	content := strings.Join(writeInPaths, "\n")
+	fmt.Println("[scan] found", len(writeInPaths), "new git folders")
+
+	content := strings.Join(writeInPaths, "")
+
 	file.Write([]byte(content))
 }
 
@@ -93,10 +96,12 @@ func scan_new_git_path(rootPath string) []string {
 			return nil
 		}
 
-		fmt.Println("[scan] scanning:", path)
-
 		return nil
 	})
+
+	if err == io.EOF {
+		err = nil
+	}
 
 	if err != nil {
 		log.Fatal(err)
