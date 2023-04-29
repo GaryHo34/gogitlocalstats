@@ -1,12 +1,8 @@
 package main
 
 import (
-	"bufio"
 	"flag"
 	"fmt"
-	"io"
-	"log"
-	"os"
 	"strings"
 	"time"
 
@@ -14,110 +10,11 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/object"
 )
 
-func scanFolderHelpler(path string, folder *[]string) {
-	path = strings.TrimSuffix(path, "/")
-
-	// get the file struct
-	f, err := os.Open(path)
-
-	// handle the err if any
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// File has a field name:
-	files, err := f.ReadDir(0)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	var nextPath []string
-
-	for _, file := range files {
-		if file.IsDir() {
-			if strings.EqualFold(file.Name(), ".git") {
-				fmt.Println("[scan] found .git:", path)
-				*folder = append(*folder, path)
-				return
-			}
-			nextPath = append(nextPath, path+"/"+file.Name())
-		}
-	}
-
-	for _, next := range nextPath {
-		scanFolderHelpler(next, folder)
-	}
-}
-
-func scanFolder(path string, folder *[]string) {
-	scanFolderHelpler(path, folder)
-}
-
-func getDotFilePath() string {
-
-	dotFile := ".visual-git"
-	return dotFile
-}
-
-func openReadSettingFile(filePath string) []string {
-	fmt.Println(filePath)
-	_, err := os.Open(filePath)
-	if err != nil {
-		if os.IsNotExist(err) {
-			// file does not exist
-			_, err = os.Create(filePath)
-			if err != nil {
-				panic(err)
-			}
-		} else {
-			// other error
-			panic(err)
-		}
-	}
-	f, err := os.Open(filePath)
-
-	if err != nil {
-		panic(err)
-	}
-
-	defer f.Close()
-
-	var lines []string
-	scanner := bufio.NewScanner(f)
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
-	}
-	if err := scanner.Err(); err != nil {
-		if err != io.EOF {
-			panic(err)
-		}
-	}
-	return lines
-}
-func writeInSetting(newPath []string) {
-	filePath := getDotFilePath()
-	existing := openReadSettingFile(filePath)
-
-	for _, line := range newPath {
-		flag := false
-		for _, oldLine := range existing {
-			flag = flag || (line == oldLine)
-		}
-		if flag {
-			continue
-		}
-		existing = append(existing, line)
-	}
-
-	content := strings.Join(existing, "\n")
-	os.WriteFile(filePath, []byte(content), 0755)
-}
-
 func printCommitDetail() {
-	filePath := getDotFilePath()
-	existing := openReadSettingFile(filePath)
+	existing := read_setting_file()
+
 	timeMap := generateTimeMap()
+
 	for _, path := range existing {
 		repo, err := git.PlainOpen(path)
 		des := strings.Split(path, "/")
@@ -178,21 +75,8 @@ func generateTimeMap() map[string]int {
 	return timeMap
 }
 
-func scan(path string) {
-	// TODO: recursive scan for .git folders
-	var gitFolders []string
-	scanFolder(path, &gitFolders)
-	// TODO: Write path to the .visual-git file
-	writeInSetting(gitFolders)
-	// Print the results
-	fmt.Println("[Result] Found:", len(gitFolders))
-	for _, path := range gitFolders {
-		fmt.Println("  ", path)
-	}
-}
-
 func stat(email string) {
-	fmt.Println("stats:", email)
+	fmt.Println(DOT_FILE_PATH)
 }
 
 func main() {
@@ -202,9 +86,20 @@ func main() {
 	flag.StringVar(&folder, "add", "", "add a new folder to scan for Git repositories")
 	flag.StringVar(&email, "email", "your@example.com", "the email to scan")
 	flag.Parse()
+
 	if folder != "" {
-		scan(folder)
+		newGitPaths := scan_new_git_path(folder)
+
+		fmt.Println("[scan] found", len(newGitPaths), "new git folders")
+
+		// Print the results
+		for _, path := range newGitPaths {
+			fmt.Println("  ", path)
+		}
+
+		write_setting_file(newGitPaths)
 	}
+
 	printCommitDetail()
 	stat(email)
 }
