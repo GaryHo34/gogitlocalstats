@@ -10,32 +10,77 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/object"
 )
 
+var TRACK_BACK_WEEKS = 24
+
 func printCommitDetail(timeMap map[string]int) {
 	today := time.Now()
 
-	totalday := 26*7 + int(today.Weekday())
+	totalday := TRACK_BACK_WEEKS*7 + int(today.Weekday())
 
-	commitMap := make([][]string, 7)
+	commitMap := make([][]string, 8)
 
+	// default is white
+	onFirstDateFlag := false
 	for i := totalday; i >= 0; i-- {
 		date := today.AddDate(0, 0, -i)
-		day := date.Weekday()
-		commitMap[int(day)] = append(commitMap[int(day)], "\033[1;30;47m"+fmt.Sprint(timeMap[date.Format(time.DateOnly)])+"\033[0m")
-	}
+		weekday := int(date.Weekday())
 
-	for i := 0; i < 7; i++ {
-		if i == 1 {
-			fmt.Print("Mon  ")
-		} else if i == 3 {
-			fmt.Print("Wed  ")
-		} else if i == 5 {
-			fmt.Print("Fri  ")
+		if date.Day() == 1 {
+			onFirstDateFlag = true
+		}
+
+		if (weekday == 6 || i == 0) && onFirstDateFlag {
+			commitMap[0] = append(commitMap[0], date.Format("Jan"))
+			onFirstDateFlag = false
+		} else if weekday == 6 {
+			commitMap[0] = append(commitMap[0], "   ")
+		}
+
+		val := timeMap[date.Format(time.DateOnly)]
+
+		escape := "\033[0;37;30m"
+		reset := " \033[0m"
+		padding := "  "
+		text := fmt.Sprint(val)
+
+		if i == 0 {
+			padding = "   "
+			escape = "\033[1;37;45m"
+		} else if val == 0 {
+			padding = "   "
+			// escape color is black and text color is black
+			escape = "\033[0;30;30m"
+			text = " "
+		} else if val > 0 && val < 5 {
+			padding = "   "
+			escape = "\033[1;30;47m"
+		} else if val >= 5 && val < 10 {
+			padding = "   "
+			escape = "\033[1;30;43m"
+		} else if val >= 10 {
+			padding = "  "
+			escape = "\033[1;30;42m"
+		}
+		commitMap[weekday+1] = append(commitMap[weekday+1], fmt.Sprintf("%s%s%s%s", escape, padding, text, reset))
+	}
+	fmt.Print("\n       ")
+	for _, cnt := range commitMap[0] {
+		fmt.Printf("%4s ", cnt)
+	}
+	fmt.Print(" \n")
+	for i := 1; i < 8; i++ {
+		if i == 2 {
+			fmt.Print("Mon    ")
+		} else if i == 4 {
+			fmt.Print("Wed    ")
+		} else if i == 6 {
+			fmt.Print("Fri    ")
 		} else {
-			fmt.Print("     ")
+			fmt.Print("       ")
 		}
 
 		for _, cnt := range commitMap[i] {
-			fmt.Printf("%-17s", cnt)
+			fmt.Printf("%18s", cnt)
 		}
 		fmt.Print(" \n")
 	}
@@ -91,7 +136,7 @@ func generateTimeMap() map[string]int {
 	day := today.Weekday()
 
 	// count back for 25 weeks
-	totalday := 26*7 + int(day)
+	totalday := TRACK_BACK_WEEKS*7 + int(day)
 
 	for i := 0; i < totalday; i++ {
 		date := today.AddDate(0, 0, -i)
