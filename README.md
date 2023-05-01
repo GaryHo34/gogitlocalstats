@@ -8,8 +8,11 @@ This repo aims to implement the same idea with `go-git/v5`, increase the readibi
 ## Usage
 ```
 $ make
-$ ./main -add <path-to-search-git-repo>
+$ ./visualgit -add <path-to-search-git-repo> -e <email> 
 ```
+
+output:
+
 
 ## Environment
 - [Go 1.20](https://golang.org/dl/)

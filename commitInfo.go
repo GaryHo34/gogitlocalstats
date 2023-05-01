@@ -84,6 +84,7 @@ func printCommitDetail(timeMap map[string]int) {
 		}
 		fmt.Print(" \n")
 	}
+	fmt.Print(" \n")
 }
 
 func loadGitCommit(email string) map[string]int {
