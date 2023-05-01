@@ -12,7 +12,28 @@ $ ./visualgit -add <path-to-search-git-repo> -e <email>
 ```
 
 output:
-![Screenshot 2023-05-01 at 11 16 40 AM](https://user-images.githubusercontent.com/24312717/235505088-9fb6718a-1751-405a-b24d-843ede6e8d8f.png)
+```
+[scan]: found 8 new git folders
+    /Users/yho/Documents/Code/Javascript/garyho34.github.io/.git
+    /Users/yho/Documents/Code/Python/SeattleBot/.git
+    /Users/yho/Documents/Code/Rust/simple_database_in_rust/.git
+    /Users/yho/Documents/Code/design-patterns-notes/.git
+    /Users/yho/Documents/Code/distributed-systems/.git
+    /Users/yho/Documents/Code/http-c/.git
+    /Users/yho/Documents/Code/incubator-devlake/.git
+    /Users/yho/Documents/Code/visual-git-go/.git
+[repo]: loading repo: garyho34.github.io
+[repo]: loading repo: SeattleBot
+[repo]: loading repo: simple_database_in_rust
+[repo]: loading repo: design-patterns-notes
+[repo]: loading repo: distributed-systems
+[repo]: loading repo: http-c
+[repo]: loading repo: incubator-devlake
+[repo]: loading repo: visual-git-go
+```
+
+![Screenshot 2023-05-01 at 11 20 48 AM](https://user-images.githubusercontent.com/24312717/235505376-a3138ace-6c3e-48c1-b59b-b6d3b7c44cc2.png)
+
 
 
 ## Environment
