@@ -12,6 +12,7 @@ $ ./visualgit -add <path-to-search-git-repo> -e <email>
 ```
 
 output:
+![Screenshot 2023-05-01 at 11 16 40 AM](https://user-images.githubusercontent.com/24312717/235505088-9fb6718a-1751-405a-b24d-843ede6e8d8f.png)
 
 
 ## Environment
