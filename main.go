@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 )
 
 func main() {
@@ -16,12 +15,6 @@ func main() {
 
 	if folder != "" {
 		newGitPaths := scanNewGitPath(folder)
-
-		// Print the results
-		for _, path := range newGitPaths {
-			fmt.Println("  ", path)
-		}
-
 		writeSettingFile(newGitPaths)
 	}
 

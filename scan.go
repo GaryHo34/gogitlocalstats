@@ -64,7 +64,11 @@ func writeSettingFile(newGitPaths []string) {
 		}
 	}
 
-	fmt.Println("[scan] found", len(writeInPaths), "new git folders")
+	fmt.Println("[scan]: found", len(writeInPaths), "new git folders")
+
+	for _, path := range writeInPaths {
+		fmt.Println("   ", path[0:len(path)-1])
+	}
 
 	content := strings.Join(writeInPaths, "")
 
@@ -86,12 +90,11 @@ func scanNewGitPath(rootPath string) []string {
 
 	err = filepath.WalkDir(absRootPath, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
-			fmt.Printf("[scan] prevent panic by handling failure accessing a path %q: %v\n", path, err)
+			fmt.Printf("[scan]: prevent panic by handling failure accessing a path %q: %v\n", path, err)
 			return err
 		}
 
 		if d.IsDir() && d.Name() == ".git" {
-			fmt.Println("[scan] found .git path:", path)
 			newGitPaths = append(newGitPaths, path)
 			return nil
 		}
